@@ -17,165 +17,307 @@ JOBS_PER_PAGE = 50
 # Clean, professional CSS
 st.markdown("""
     <style>
-        .search-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            margin-bottom: 1.5rem;
-        }
-        
+        /* Enhanced Job Card Container */
         .job-card {
             background: white;
-            border-radius: 12px;
-            padding: 1.75rem;
-            margin: 1.25rem 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-left: 4px solid #3b82f6;
-            transition: all 0.3s ease;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .job-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
         }
         
         .job-card:hover {
-            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-            transform: translateY(-3px);
-            border-left-color: #2563eb;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            transform: translateY(-4px);
+            border-color: #3b82f6;
         }
         
+        .job-card:hover::before {
+            transform: scaleY(1);
+        }
+        
+        /* Job Header Section */
         .job-header {
-            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .job-title-section {
+            flex: 1;
+        }
+        
+        .job-number {
+            display: inline-block;
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
         }
         
         .job-title {
             color: #0f172a;
-            font-size: 1.35rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
-            line-height: 1.4;
+            margin: 0.5rem 0;
+            line-height: 1.3;
+            letter-spacing: -0.02em;
+        }
+        
+        .company-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
         }
         
         .company-name {
             color: #3b82f6;
             font-weight: 600;
-            font-size: 1.05rem;
-            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .company-name::before {
+            content: '🏢';
+            font-size: 1rem;
         }
         
         .job-location {
             color: #64748b;
             font-size: 0.95rem;
-            margin-bottom: 0.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
         
-        .job-meta {
-            color: #64748b;
+        .job-location::before {
+            content: '📍';
             font-size: 0.9rem;
-            margin: 0.75rem 0;
-            line-height: 1.6;
         }
         
+        /* Badge Container */
+        .badge-container {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+        
+        .match-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+        
+        .match-badge::before {
+            content: '✓';
+            font-size: 1rem;
+        }
+        
+        .external-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .external-badge::before {
+            content: '🌐';
+            font-size: 0.9rem;
+        }
+        
+        /* Job Metadata Grid */
+        .job-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.25rem 0;
+            padding: 1.25rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #475569;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .meta-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .meta-label {
+            color: #64748b;
+            font-size: 0.8rem;
+            display: block;
+        }
+        
+        .meta-value {
+            color: #0f172a;
+            font-weight: 600;
+        }
+        
+        /* Job Description */
         .job-description {
             color: #475569;
             font-size: 0.95rem;
             line-height: 1.7;
-            margin: 1rem 0;
+            margin: 1.25rem 0;
+            padding: 1rem;
+            background: #fafafa;
+            border-radius: 8px;
+            border-left: 3px solid #e2e8f0;
+        }
+        
+        /* Skills Section */
+        .skills-section {
+            margin: 1.25rem 0;
+        }
+        
+        .skills-header {
+            color: #0f172a;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
         
         .skill-badge {
-            background: #f1f5f9;
+            background: white;
             color: #334155;
-            padding: 0.375rem 0.875rem;
+            padding: 0.5rem 1rem;
             border-radius: 8px;
             font-size: 0.85rem;
             font-weight: 500;
-            display: inline-block;
-            margin: 0.25rem 0.35rem 0.25rem 0;
+            border: 1.5px solid #e2e8f0;
+            transition: all 0.2s ease;
         }
         
-        .match-badge {
-            background: #d1fae5;
-            color: #065f46;
-            padding: 0.4rem 1rem;
-            border-radius: 8px;
-            font-weight: 700;
-            display: inline-block;
-            font-size: 0.9rem;
-            margin-left: 0.5rem;
+        .skill-badge:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            color: #2563eb;
+            transform: translateY(-1px);
         }
         
-        .external-badge {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 0.35rem 0.75rem;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-block;
-            margin-bottom: 0.5rem;
-        }
-        
-        .badge-container {
-            margin: 0.75rem 0;
-        }
-        
-        .metric-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-        }
-        
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #0f172a;
-        }
-        
-        .metric-label {
-            font-size: 0.875rem;
+        .skills-more {
             color: #64748b;
+            font-size: 0.85rem;
             font-weight: 500;
+            padding: 0.5rem 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
         }
         
-        .status-badge {
-            display: inline-block;
-            padding: 0.375rem 0.875rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 500;
+        /* Action Buttons Section */
+        .job-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #f1f5f9;
         }
         
-        .status-pending {
-            background: #fef3c7;
-            color: #92400e;
+        /* Application Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .status-applied {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 2px solid #3b82f6;
         }
         
         .status-accepted {
             background: #d1fae5;
             color: #065f46;
+            border: 2px solid #10b981;
         }
         
         .status-rejected {
             background: #fee2e2;
             color: #991b1b;
+            border: 2px solid #ef4444;
         }
         
-        .pagination-bar {
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            text-align: center;
-            margin-top: 1.5rem;
-        }
-        
-        .divider {
-            border: 0;
-            border-top: 1px solid #e2e8f0;
-            margin: 1rem 0;
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .job-card {
+                padding: 1.5rem;
+            }
+            
+            .job-title {
+                font-size: 1.25rem;
+            }
+            
+            .job-meta-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
         }
     </style>
 """, unsafe_allow_html=True)
+
 
 def show_user_dashboard(user):
     st.markdown(f"# Welcome, {user['name']}")
@@ -426,152 +568,153 @@ def display_paginated_results(results, user):
         st.markdown('</div>', unsafe_allow_html=True)
 
 def display_job_card(job, idx, user, jobs_collection, apps_collection):
-    """Display a job card with proper styling for both internal and external jobs"""
+    """Display an enhanced job card with better visual hierarchy"""
     
-    # Start card container - THIS IS CRITICAL FOR ALL JOBS
+    # Start card
     st.markdown('<div class="job-card">', unsafe_allow_html=True)
     
-    # Create two column layout
-    col1, col2 = st.columns([3, 1])
+    # Job Header with Title and Company
+    st.markdown(f'<div class="job-number">#{idx}</div>', unsafe_allow_html=True)
+    st.markdown(f'<h2 class="job-title">{job.get("title", "Untitled Position")}</h2>', unsafe_allow_html=True)
+    
+    # Company and Location
+    company = job.get('company', 'Unknown Company')
+    location = job.get('location', 'Location not specified')
+    st.markdown(f'''
+        <div class="company-info">
+            <span class="company-name">{company}</span>
+            <span class="job-location">{location}</span>
+        </div>
+    ''', unsafe_allow_html=True)
+    
+    # Badges (Match Score & External Source)
+    badges_html = '<div class="badge-container">'
+    if job.get('skill_match_score', 0) > 0:
+        match_score = int(job['skill_match_score'])
+        badges_html += f'<span class="match-badge">{match_score}% Match</span>'
+    
+    if job.get('source') == 'external':
+        source_name = job.get('job_source', 'External')
+        badges_html += f'<span class="external-badge">{source_name}</span>'
+    
+    badges_html += '</div>'
+    st.markdown(badges_html, unsafe_allow_html=True)
+    
+    # Job Metadata Grid
+    meta_html = '<div class="job-meta-grid">'
+    
+    if job.get('category'):
+        meta_html += f'''
+            <div class="meta-item">
+                <span class="meta-icon">📂</span>
+                <div>
+                    <div class="meta-label">Category</div>
+                    <div class="meta-value">{job['category']}</div>
+                </div>
+            </div>
+        '''
+    
+    if job.get('salary_min') and job.get('salary_max'):
+        meta_html += f'''
+            <div class="meta-item">
+                <span class="meta-icon">💰</span>
+                <div>
+                    <div class="meta-label">Salary Range</div>
+                    <div class="meta-value">${job['salary_min']:,} - ${job['salary_max']:,}</div>
+                </div>
+            </div>
+        '''
+    
+    if job.get('employment_type'):
+        meta_html += f'''
+            <div class="meta-item">
+                <span class="meta-icon">⏰</span>
+                <div>
+                    <div class="meta-label">Employment Type</div>
+                    <div class="meta-value">{job['employment_type']}</div>
+                </div>
+            </div>
+        '''
+    
+    if job.get('experience_level'):
+        meta_html += f'''
+            <div class="meta-item">
+                <span class="meta-icon">📊</span>
+                <div>
+                    <div class="meta-label">Experience Level</div>
+                    <div class="meta-value">{job['experience_level']}</div>
+                </div>
+            </div>
+        '''
+    
+    meta_html += '</div>'
+    st.markdown(meta_html, unsafe_allow_html=True)
+    
+    # Job Description
+    description = job.get('description', 'No description available')
+    truncated_desc = description[:250] + "..." if len(description) > 250 else description
+    st.markdown(f'<div class="job-description">{truncated_desc}</div>', unsafe_allow_html=True)
+    
+    # Skills Section
+    if job.get('skills_required'):
+        st.markdown('<div class="skills-section">', unsafe_allow_html=True)
+        st.markdown('<div class="skills-header">Required Skills</div>', unsafe_allow_html=True)
+        st.markdown('<div class="skills-container">', unsafe_allow_html=True)
+        
+        skills_to_show = job['skills_required'][:8]
+        for skill in skills_to_show:
+            st.markdown(f'<span class="skill-badge">{skill}</span>', unsafe_allow_html=True)
+        
+        if len(job['skills_required']) > 8:
+            remaining = len(job['skills_required']) - 8
+            st.markdown(f'<span class="skills-more">+{remaining} more</span>', unsafe_allow_html=True)
+        
+        st.markdown('</div></div>', unsafe_allow_html=True)
+    
+    # Action Buttons Section
+    st.markdown('<div class="job-actions">', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([2, 1])
     
     with col1:
-        # Job header section
-        st.markdown('<div class="job-header">', unsafe_allow_html=True)
-        
-        # Job number and title
-        title_text = f"{idx}. {job.get('title', 'Untitled Position')}"
-        st.markdown(f'<div class="job-title">{title_text}</div>', unsafe_allow_html=True)
-        
-        # Company name
-        company = job.get('company', 'Unknown Company')
-        st.markdown(f'<div class="company-name">{company}</div>', unsafe_allow_html=True)
-        
-        # Location with icon
-        location = job.get('location', 'Location not specified')
-        st.markdown(f'<div class="job-location">📍 {location}</div>', unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Badges section
-        st.markdown('<div class="badge-container">', unsafe_allow_html=True)
-        
-        # Skill match badge
-        if job.get('skill_match_score', 0) > 0:
-            match_score = int(job['skill_match_score'])
-            st.markdown(f'<span class="match-badge">✓ {match_score}% Match</span>', unsafe_allow_html=True)
-        
-        # External source badge
-        if job.get('source') == 'external':
-            source_name = job.get('job_source', 'External')
-            st.markdown(f'<span class="external-badge">🌐 {source_name}</span>', unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Job metadata
-        meta_parts = []
-        if job.get('category'):
-            meta_parts.append(f"📂 {job['category']}")
-        if job.get('salary_min') and job.get('salary_max'):
-            meta_parts.append(f"💰 ${job['salary_min']:,} - ${job['salary_max']:,}/year")
-        if job.get('employment_type'):
-            meta_parts.append(f"⏰ {job['employment_type']}")
-        if job.get('experience_level'):
-            meta_parts.append(f"📊 {job['experience_level']}")
-        
-        if meta_parts:
-            st.markdown(f'<div class="job-meta">{" • ".join(meta_parts)}</div>', unsafe_allow_html=True)
-        
-        # Job description (truncated)
-        description = job.get('description', 'No description available')
-        truncated_desc = description[:300] + "..." if len(description) > 300 else description
-        st.markdown(f'<div class="job-description">{truncated_desc}</div>', unsafe_allow_html=True)
-        
-        # Skills section
-        if job.get('skills_required'):
-            st.markdown('<div style="margin-top: 1rem;">', unsafe_allow_html=True)
-            skills_to_show = job['skills_required'][:6]
-            skills_html = "".join([f'<span class="skill-badge">{skill}</span>' for skill in skills_to_show])
-            st.markdown(skills_html, unsafe_allow_html=True)
-            
-            if len(job['skills_required']) > 6:
-                remaining = len(job['skills_required']) - 6
-                st.markdown(f'<span style="color: #64748b; font-size: 0.85rem; margin-left: 0.5rem;">+{remaining} more</span>', unsafe_allow_html=True)
-            
-            st.markdown('</div>', unsafe_allow_html=True)
-    
-    with col2:
-        # EXTERNAL JOB - Show apply link
+        # EXTERNAL JOB
         if job.get('source') == 'external':
             apply_link = job.get('apply_link', '#')
-            
             if apply_link and apply_link != '#':
-                st.link_button(
-                    "Apply Now",
-                    apply_link,
-                    use_container_width=True,
-                    type="primary"
-                )
+                st.link_button("Apply on Company Website", apply_link, use_container_width=True, type="primary")
             else:
-                st.warning("No apply link")
-            
-            # Full details expander
-            with st.expander("Full Details"):
-                st.write("**Full Description:**")
-                st.write(job.get('description', 'No description available'))
-                
-                if job.get('skills_required'):
-                    st.write("**Required Skills:**")
-                    st.write(", ".join(job['skills_required']))
-                
-                if job.get('employment_type'):
-                    st.write(f"**Employment Type:** {job['employment_type']}")
-                if job.get('experience_level'):
-                    st.write(f"**Experience Level:** {job['experience_level']}")
-                if job.get('salary_min') and job.get('salary_max'):
-                    st.write(f"**Salary Range:** ${job['salary_min']:,} - ${job['salary_max']:,}/year")
-                
-                st.caption("This is an external job listing. You'll be redirected to the company's application page.")
+                st.warning("Application link not available")
         
-        # INTERNAL JOB - Show application interface
+        # INTERNAL JOB
         else:
             try:
                 job_id = str(job['_id'])
                 Job.increment_views(jobs_collection, job_id)
                 
-                # Check if user already applied
                 existing = apps_collection.find_one({
                     "job_id": job_id,
                     "user_id": str(user['_id'])
                 })
                 
                 if existing:
-                    # Show application status
                     status = existing['status']
                     if status == 'pending':
-                        st.success("✓ Applied")
-                        st.caption("Application pending review")
+                        st.markdown('<div class="status-indicator status-applied">✓ Application Submitted</div>', unsafe_allow_html=True)
                     elif status == 'accepted':
-                        st.success("✓ Accepted")
-                        st.caption("Congratulations!")
+                        st.markdown('<div class="status-indicator status-accepted">🎉 Application Accepted!</div>', unsafe_allow_html=True)
                     else:
-                        st.error("✗ Rejected")
-                        st.caption("Keep trying!")
+                        st.markdown('<div class="status-indicator status-rejected">Application Not Selected</div>', unsafe_allow_html=True)
                 else:
-                    # Application interface
-                    st.write("**Upload Resume**")
                     resume_file = st.file_uploader(
-                        "Choose file",
+                        "Upload Resume",
                         type=['pdf', 'doc', 'docx'],
-                        key=f"resume_upload_{idx}",
+                        key=f"resume_{idx}",
                         label_visibility="collapsed"
                     )
                     
-                    if resume_file:
-                        st.caption(f"✓ {resume_file.name}")
-                    
-                    if st.button("Apply Now", key=f"apply_{idx}", use_container_width=True, type="primary"):
+                    if st.button("Apply Now", key=f"apply_{idx}", type="primary", use_container_width=True):
                         if not resume_file:
-                            st.error("Please upload resume")
+                            st.error("Please upload your resume")
                         else:
                             try:
                                 from utils.file_handler import save_resume
@@ -589,37 +732,29 @@ def display_job_card(job, idx, user, jobs_collection, apps_collection):
                                         )
                                         apps_collection.insert_one(app_data)
                                         Job.increment_applications(jobs_collection, job_id)
-                                        st.success("Application submitted!")
+                                        st.success("Application submitted successfully!")
                                         st.balloons()
                                         st.rerun()
                                     else:
                                         st.error(result)
                             except Exception as e:
-                                st.error(f"Submission error: {str(e)}")
-                
-                # Full details expander
-                with st.expander("Full Details"):
-                    st.write("**Full Description:**")
-                    st.write(job.get('description', 'No description available'))
-                    
-                    if job.get('skills_required'):
-                        st.write("**Required Skills:**")
-                        st.write(", ".join(job['skills_required']))
-                    
-                    st.write(f"**Employment Type:** {job.get('employment_type', 'N/A')}")
-                    st.write(f"**Experience Level:** {job.get('experience_level', 'N/A')}")
-                    
-                    if job.get('salary_min') and job.get('salary_max'):
-                        st.write(f"**Salary Range:** ${job['salary_min']:,} - ${job['salary_max']:,}/year")
-                    
-                    st.caption("This is an internal job posting on JobHub.")
-                    
+                                st.error(f"Error: {str(e)}")
+                                
             except Exception as e:
                 st.error(f"Error loading job: {str(e)}")
     
-    # Close card container - CRITICAL
-    st.markdown('</div>', unsafe_allow_html=True)
+    with col2:
+        with st.expander("View Full Details"):
+            st.write("**Full Description:**")
+            st.write(job.get('description', 'No description available'))
+            
+            if job.get('skills_required'):
+                st.write("**All Required Skills:**")
+                st.write(", ".join(job['skills_required']))
     
+    st.markdown('</div>', unsafe_allow_html=True)  # Close job-actions
+    st.markdown('</div>', unsafe_allow_html=True)  
+       
 def show_my_applications(user):
     st.markdown("## My Applications")
     st.caption("Track your job applications")
