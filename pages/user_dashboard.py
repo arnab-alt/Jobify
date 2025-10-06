@@ -490,12 +490,31 @@ def display_job_card(job, idx, user, jobs_collection, apps_collection):
             st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
+        # EXTERNAL JOB HANDLING
         if job.get('source') == 'external':
             apply_link = job.get('apply_link', '#')
             if apply_link and apply_link != '#':
-                st.link_button("Apply Now", apply_link, use_container_width=True)
+                st.link_button("Apply Now", apply_link, use_container_width=True, type="primary")
             else:
                 st.caption("Apply link unavailable")
+            
+            # Show full details in expander for external jobs too
+            with st.expander("Full Details"):
+                st.write("**Description:**")
+                st.write(job.get('description', 'No description available'))
+                
+                if job.get('skills_required'):
+                    st.write("**Required Skills:**")
+                    st.write(", ".join(job['skills_required']))
+                
+                if job.get('employment_type'):
+                    st.write(f"**Employment Type:** {job['employment_type']}")
+                if job.get('experience_level'):
+                    st.write(f"**Experience Level:** {job['experience_level']}")
+                if job.get('salary_min') and job.get('salary_max'):
+                    st.write(f"**Salary:** ${job['salary_min']:,} - ${job['salary_max']:,}/year")
+        
+        # INTERNAL JOB HANDLING
         else:
             try:
                 job_id = str(job['_id'])
@@ -510,11 +529,11 @@ def display_job_card(job, idx, user, jobs_collection, apps_collection):
                 if existing:
                     status = existing['status']
                     if status == 'pending':
-                        st.success("Applied")
+                        st.success("✓ Applied")
                     elif status == 'accepted':
-                        st.success("Accepted")
+                        st.success("✓ Accepted")
                     else:
-                        st.error("Rejected")
+                        st.error("✗ Rejected")
                 else:
                     # Resume upload
                     resume_key = f"resume_upload_{idx}"
