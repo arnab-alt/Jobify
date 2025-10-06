@@ -426,11 +426,16 @@ def display_paginated_results(results, user):
         st.markdown('</div>', unsafe_allow_html=True)
 
 def display_job_card(job, idx, user, jobs_collection, apps_collection):
+    """Display a job card with proper styling for both internal and external jobs"""
+    
+    # Start card container - THIS IS CRITICAL FOR ALL JOBS
     st.markdown('<div class="job-card">', unsafe_allow_html=True)
     
+    # Create two column layout
     col1, col2 = st.columns([3, 1])
     
     with col1:
+        # Job header section
         st.markdown('<div class="job-header">', unsafe_allow_html=True)
         
         # Job number and title
@@ -438,27 +443,31 @@ def display_job_card(job, idx, user, jobs_collection, apps_collection):
         st.markdown(f'<div class="job-title">{title_text}</div>', unsafe_allow_html=True)
         
         # Company name
-        st.markdown(f'<div class="company-name">{job.get("company", "Unknown Company")}</div>', unsafe_allow_html=True)
+        company = job.get('company', 'Unknown Company')
+        st.markdown(f'<div class="company-name">{company}</div>', unsafe_allow_html=True)
         
-        # Location
-        st.markdown(f'<div class="job-location">📍 {job.get("location", "Location not specified")}</div>', unsafe_allow_html=True)
+        # Location with icon
+        location = job.get('location', 'Location not specified')
+        st.markdown(f'<div class="job-location">📍 {location}</div>', unsafe_allow_html=True)
         
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # Badges container
+        # Badges section
         st.markdown('<div class="badge-container">', unsafe_allow_html=True)
         
-        # Match score badge
+        # Skill match badge
         if job.get('skill_match_score', 0) > 0:
-            st.markdown(f'<span class="match-badge">✓ {int(job["skill_match_score"])}% Match</span>', unsafe_allow_html=True)
+            match_score = int(job['skill_match_score'])
+            st.markdown(f'<span class="match-badge">✓ {match_score}% Match</span>', unsafe_allow_html=True)
         
-        # External badge
+        # External source badge
         if job.get('source') == 'external':
-            st.markdown(f' <span class="external-badge">🌐 {job.get("job_source", "External")}</span>', unsafe_allow_html=True)
+            source_name = job.get('job_source', 'External')
+            st.markdown(f'<span class="external-badge">🌐 {source_name}</span>', unsafe_allow_html=True)
         
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # Meta information
+        # Job metadata
         meta_parts = []
         if job.get('category'):
             meta_parts.append(f"📂 {job['category']}")
@@ -472,35 +481,42 @@ def display_job_card(job, idx, user, jobs_collection, apps_collection):
         if meta_parts:
             st.markdown(f'<div class="job-meta">{" • ".join(meta_parts)}</div>', unsafe_allow_html=True)
         
-        # Description
+        # Job description (truncated)
         description = job.get('description', 'No description available')
-        truncated_desc = description[:250] + "..." if len(description) > 250 else description
+        truncated_desc = description[:300] + "..." if len(description) > 300 else description
         st.markdown(f'<div class="job-description">{truncated_desc}</div>', unsafe_allow_html=True)
         
-        # Skills
+        # Skills section
         if job.get('skills_required'):
             st.markdown('<div style="margin-top: 1rem;">', unsafe_allow_html=True)
-            skills_html = "".join([f'<span class="skill-badge">{skill}</span>' 
-                                  for skill in job['skills_required'][:6]])
+            skills_to_show = job['skills_required'][:6]
+            skills_html = "".join([f'<span class="skill-badge">{skill}</span>' for skill in skills_to_show])
             st.markdown(skills_html, unsafe_allow_html=True)
             
             if len(job['skills_required']) > 6:
-                st.markdown(f'<span style="color: #64748b; font-size: 0.85rem; margin-left: 0.5rem;">+{len(job["skills_required"]) - 6} more</span>', unsafe_allow_html=True)
+                remaining = len(job['skills_required']) - 6
+                st.markdown(f'<span style="color: #64748b; font-size: 0.85rem; margin-left: 0.5rem;">+{remaining} more</span>', unsafe_allow_html=True)
             
             st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-        # EXTERNAL JOB HANDLING
+        # EXTERNAL JOB - Show apply link
         if job.get('source') == 'external':
             apply_link = job.get('apply_link', '#')
-            if apply_link and apply_link != '#':
-                st.link_button("Apply Now", apply_link, use_container_width=True, type="primary")
-            else:
-                st.caption("Apply link unavailable")
             
-            # Show full details in expander for external jobs too
+            if apply_link and apply_link != '#':
+                st.link_button(
+                    "Apply Now",
+                    apply_link,
+                    use_container_width=True,
+                    type="primary"
+                )
+            else:
+                st.warning("No apply link")
+            
+            # Full details expander
             with st.expander("Full Details"):
-                st.write("**Description:**")
+                st.write("**Full Description:**")
                 st.write(job.get('description', 'No description available'))
                 
                 if job.get('skills_required'):
@@ -512,36 +528,41 @@ def display_job_card(job, idx, user, jobs_collection, apps_collection):
                 if job.get('experience_level'):
                     st.write(f"**Experience Level:** {job['experience_level']}")
                 if job.get('salary_min') and job.get('salary_max'):
-                    st.write(f"**Salary:** ${job['salary_min']:,} - ${job['salary_max']:,}/year")
+                    st.write(f"**Salary Range:** ${job['salary_min']:,} - ${job['salary_max']:,}/year")
+                
+                st.caption("This is an external job listing. You'll be redirected to the company's application page.")
         
-        # INTERNAL JOB HANDLING
+        # INTERNAL JOB - Show application interface
         else:
             try:
                 job_id = str(job['_id'])
                 Job.increment_views(jobs_collection, job_id)
                 
-                # Check existing application
+                # Check if user already applied
                 existing = apps_collection.find_one({
                     "job_id": job_id,
                     "user_id": str(user['_id'])
                 })
                 
                 if existing:
+                    # Show application status
                     status = existing['status']
                     if status == 'pending':
                         st.success("✓ Applied")
+                        st.caption("Application pending review")
                     elif status == 'accepted':
                         st.success("✓ Accepted")
+                        st.caption("Congratulations!")
                     else:
                         st.error("✗ Rejected")
+                        st.caption("Keep trying!")
                 else:
-                    # Resume upload
-                    resume_key = f"resume_upload_{idx}"
-                    st.write("**Resume**")
+                    # Application interface
+                    st.write("**Upload Resume**")
                     resume_file = st.file_uploader(
                         "Choose file",
                         type=['pdf', 'doc', 'docx'],
-                        key=resume_key,
+                        key=f"resume_upload_{idx}",
                         label_visibility="collapsed"
                     )
                     
@@ -550,12 +571,12 @@ def display_job_card(job, idx, user, jobs_collection, apps_collection):
                     
                     if st.button("Apply Now", key=f"apply_{idx}", use_container_width=True, type="primary"):
                         if not resume_file:
-                            st.error("Upload resume first")
+                            st.error("Please upload resume")
                         else:
                             try:
                                 from utils.file_handler import save_resume
                                 
-                                with st.spinner("Submitting..."):
+                                with st.spinner("Submitting application..."):
                                     success, result = save_resume(resume_file, str(user['_id']))
                                     
                                     if success:
@@ -574,12 +595,12 @@ def display_job_card(job, idx, user, jobs_collection, apps_collection):
                                     else:
                                         st.error(result)
                             except Exception as e:
-                                st.error(f"Error submitting application: {str(e)}")
+                                st.error(f"Submission error: {str(e)}")
                 
                 # Full details expander
                 with st.expander("Full Details"):
-                    st.write("**Description:**")
-                    st.write(job.get('description', 'No description'))
+                    st.write("**Full Description:**")
+                    st.write(job.get('description', 'No description available'))
                     
                     if job.get('skills_required'):
                         st.write("**Required Skills:**")
@@ -587,11 +608,18 @@ def display_job_card(job, idx, user, jobs_collection, apps_collection):
                     
                     st.write(f"**Employment Type:** {job.get('employment_type', 'N/A')}")
                     st.write(f"**Experience Level:** {job.get('experience_level', 'N/A')}")
+                    
+                    if job.get('salary_min') and job.get('salary_max'):
+                        st.write(f"**Salary Range:** ${job['salary_min']:,} - ${job['salary_max']:,}/year")
+                    
+                    st.caption("This is an internal job posting on JobHub.")
+                    
             except Exception as e:
-                st.error(f"Error: {str(e)}")
+                st.error(f"Error loading job: {str(e)}")
     
+    # Close card container - CRITICAL
     st.markdown('</div>', unsafe_allow_html=True)
-
+    
 def show_my_applications(user):
     st.markdown("## My Applications")
     st.caption("Track your job applications")
