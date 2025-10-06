@@ -93,10 +93,6 @@ st.markdown("""
 
 def show_profile(user):
     """Enhanced profile page"""
-    #st.markdown('<div class="profile-header">', unsafe_allow_html=True)
-    #st.markdown('<div class="profile-title">👤 My Profile</div>', unsafe_allow_html=True)
-    #st.markdown('<div class="profile-subtitle">Manage your professional information</div>', unsafe_allow_html=True)
-    #st.markdown('</div>', unsafe_allow_html=True)
     
     if user['role'] == 'user':
         show_user_profile(user)

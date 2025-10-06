@@ -5,104 +5,109 @@ from config import JOB_CATEGORIES, COUNTRIES
 from bson import ObjectId
 from utils.file_handler import get_resume_data, resume_exists
 
-# Enhanced professional CSS
+# Modern, clean CSS with better visual hierarchy
 st.markdown("""
     <style>
         .dashboard-card {
             background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            margin-bottom: 1.5rem;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+            border: 1px solid #f1f5f9;
             transition: all 0.3s ease;
         }
         
         .dashboard-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
         .metric-card {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 2rem;
             text-align: center;
             transition: all 0.3s ease;
+            border: none;
         }
         
         .metric-card:hover {
-            border-color: #3b82f6;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
         
         .metric-value {
-            font-size: 2.5rem;
+            font-size: 2.75rem;
             font-weight: 800;
-            color: #0f172a;
+            color: white;
             margin: 0.5rem 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .metric-label {
-            font-size: 0.95rem;
-            color: #64748b;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.95);
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
         
         .job-item {
-            background: #f8fafc;
-            border-radius: 10px;
-            padding: 1.25rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
             margin: 1rem 0;
-            border-left: 4px solid #3b82f6;
-            transition: all 0.2s ease;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
         
         .job-item:hover {
-            background: #f1f5f9;
-            border-left-color: #2563eb;
-            transform: translateX(3px);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            border-left-color: #764ba2;
         }
         
         .job-item-title {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 700;
-            color: #0f172a;
+            color: #1e293b;
             margin-bottom: 0.5rem;
         }
         
         .job-item-meta {
             color: #64748b;
             font-size: 0.9rem;
+            font-weight: 500;
         }
         
         .applicant-item {
             background: white;
             border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 1.25rem;
-            margin: 0.75rem 0;
-            transition: all 0.2s ease;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
         }
         
         .applicant-item:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
         }
         
         .applicant-name {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 0.25rem;
+            color: #1e293b;
+            margin-bottom: 0.35rem;
         }
         
         .applicant-email {
-            color: #3b82f6;
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
+            color: #667eea;
+            font-size: 0.95rem;
+            margin-bottom: 0.35rem;
+            font-weight: 500;
         }
         
         .applicant-date {
@@ -112,76 +117,78 @@ st.markdown("""
         
         .status-badge {
             display: inline-block;
-            padding: 0.4rem 1rem;
-            border-radius: 8px;
+            padding: 0.5rem 1.2rem;
+            border-radius: 10px;
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         
         .status-active {
-            background: #d1fae5;
-            color: #065f46;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
         }
         
         .status-closed {
-            background: #fee2e2;
-            color: #991b1b;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
         }
         
         .status-pending {
-            background: #fef3c7;
-            color: #92400e;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
         }
         
         .status-accepted {
-            background: #d1fae5;
-            color: #065f46;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
         }
         
         .status-rejected {
-            background: #fee2e2;
-            color: #991b1b;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
         }
         
         .section-header {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #0f172a;
-            margin: 2rem 0 1rem 0;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid #e2e8f0;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 2.5rem 0 1.5rem 0;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #667eea;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         .info-box {
-            background: #f8fafc;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
             border-left: 4px solid #3b82f6;
-            border-radius: 8px;
-            padding: 1rem 1.25rem;
-            margin: 1rem 0;
-        }
-        
-        .job-stats {
-            display: flex;
-            gap: 2rem;
-            margin: 1rem 0;
-        }
-        
-        .stat-item {
-            text-align: center;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
         }
         
         .stat-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #3b82f6;
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         .stat-label {
             font-size: 0.85rem;
             color: #64748b;
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -191,8 +198,14 @@ def show_recruiter_dashboard(user):
     st.caption("Manage your job postings and applications")
     st.markdown("<br>", unsafe_allow_html=True)
     
-    view = st.radio("", ["Overview", "Post New Job", "Manage Jobs"], 
-                    horizontal=True, label_visibility="collapsed")
+    # Check if we need to switch view after posting
+    if 'recruiter_view' in st.session_state:
+        view = st.session_state['recruiter_view']
+        if view == 'manage':
+            del st.session_state['recruiter_view']
+    else:
+        view = st.radio("", ["Overview", "Post New Job", "Manage Jobs"], 
+                        horizontal=True, label_visibility="collapsed")
     
     st.markdown("<br>", unsafe_allow_html=True)
     
@@ -367,7 +380,8 @@ def show_post_job(user):
                         if result.inserted_id:
                             st.success("Job posted successfully!")
                             st.balloons()
-                            st.session_state['recruiter_view'] = 'manage'
+                            # Set view to manage and rerun
+                            st.session_state['recruiter_view'] = 'Manage Jobs'
                             st.rerun()
                         else:
                             st.error("Failed to post job")
