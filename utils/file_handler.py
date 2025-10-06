@@ -1,12 +1,17 @@
 import os
 import uuid
 from datetime import datetime
-from config import RESUME_UPLOAD_FOLDER, ALLOWED_RESUME_EXTENSIONS, MAX_RESUME_SIZE_MB
+from config import ALLOWED_RESUME_EXTENSIONS, MAX_RESUME_SIZE_MB
+from database.connection import get_database
+import gridfs
+from bson.objectid import ObjectId
 
-def create_resume_folder():
-    """Create resumes folder if it doesn't exist"""
-    if not os.path.exists(RESUME_UPLOAD_FOLDER):
-        os.makedirs(RESUME_UPLOAD_FOLDER)
+def get_gridfs():
+    """Get GridFS instance"""
+    db = get_database()
+    if db is not None:
+        return gridfs.GridFS(db)
+    return None
 
 def allowed_file(filename):
     """Check if file extension is allowed"""
@@ -19,11 +24,13 @@ def get_file_size_mb(file_bytes):
 
 def save_resume(uploaded_file, user_id):
     """
-    Save uploaded resume file
+    Save uploaded resume file to MongoDB GridFS
     Returns: (success, filename/error_message)
     """
     try:
-        create_resume_folder()
+        fs = get_gridfs()
+        if not fs:
+            return False, "Database connection error"
         
         # Check if file is allowed
         if not allowed_file(uploaded_file.name):
@@ -43,37 +50,69 @@ def save_resume(uploaded_file, user_id):
         unique_id = str(uuid.uuid4())[:8]
         filename = f"resume_{user_id}_{timestamp}_{unique_id}.{file_extension}"
         
-        # Save file
-        filepath = os.path.join(RESUME_UPLOAD_FOLDER, filename)
-        with open(filepath, 'wb') as f:
-            f.write(file_bytes)
+        # Save to GridFS
+        file_id = fs.put(
+            file_bytes,
+            filename=filename,
+            user_id=user_id,
+            upload_date=datetime.utcnow(),
+            content_type=uploaded_file.type
+        )
         
         return True, filename
     
     except Exception as e:
         return False, f"Error saving file: {str(e)}"
 
-def get_resume_path(filename):
-    """Get full path to resume file"""
-    if not filename:
+def get_resume_data(filename):
+    """Get resume file data from GridFS"""
+    try:
+        fs = get_gridfs()
+        if not fs:
+            return None
+        
+        file = fs.find_one({"filename": filename})
+        if file:
+            return file.read()
         return None
-    return os.path.join(RESUME_UPLOAD_FOLDER, filename)
+    except Exception as e:
+        print(f"Error getting resume: {e}")
+        return None
 
 def resume_exists(filename):
-    """Check if resume file exists"""
-    if not filename:
+    """Check if resume file exists in GridFS"""
+    try:
+        if not filename:
+            return False
+        fs = get_gridfs()
+        if not fs:
+            return False
+        return fs.exists({"filename": filename})
+    except Exception as e:
+        print(f"Error checking resume: {e}")
         return False
-    filepath = get_resume_path(filename)
-    return os.path.exists(filepath)
 
 def delete_resume(filename):
-    """Delete resume file"""
+    """Delete resume file from GridFS"""
     try:
-        if filename and resume_exists(filename):
-            filepath = get_resume_path(filename)
-            os.remove(filepath)
+        if not filename:
+            return False
+        fs = get_gridfs()
+        if not fs:
+            return False
+        
+        file = fs.find_one({"filename": filename})
+        if file:
+            fs.delete(file._id)
             return True
         return False
     except Exception as e:
         print(f"Error deleting resume: {e}")
         return False
+
+def get_resume_path(filename):
+    """
+    This function is kept for compatibility but returns None
+    since we're using GridFS instead of file system
+    """
+    return None

@@ -1,11 +1,22 @@
 import os
+import streamlit as st
 from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
-DATABASE_NAME = os.getenv("DATABASE_NAME", "job_portal")
-RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY", "")
+# Try to get from Streamlit secrets first (for cloud deployment)
+# Fall back to environment variables (for local development)
+def get_config(key, default=""):
+    try:
+        # Try Streamlit secrets (cloud deployment)
+        return st.secrets.get(key, default)
+    except:
+        # Fall back to environment variables (local development)
+        return os.getenv(key, default)
+
+MONGODB_URI = get_config("MONGODB_URI", "mongodb://localhost:27017/")
+DATABASE_NAME = get_config("DATABASE_NAME", "job_portal")
+RAPIDAPI_KEY = get_config("RAPIDAPI_KEY", "")
 
 # Resume upload settings
 RESUME_UPLOAD_FOLDER = "resumes"

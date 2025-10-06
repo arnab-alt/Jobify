@@ -4,6 +4,9 @@ __pycache__/
 *$py.class
 *.so
 .Python
+env/
+venv/
+ENV/
 build/
 develop-eggs/
 dist/
@@ -20,21 +23,12 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
-venv/
-ENV/
-env/
-.venv
-
 # Environment variables
 .env
 .env.local
 
-# Resumes (keep folder structure but not the files)
-resumes/*.pdf
-resumes/*.doc
-resumes/*.docx
-!resumes/.gitkeep
+# Streamlit
+.streamlit/secrets.toml
 
 # IDE
 .vscode/
@@ -47,8 +41,11 @@ resumes/*.docx
 .DS_Store
 Thumbs.db
 
-# Streamlit
-.streamlit/
+# Uploaded files (optional - include if you don't want to track resumes)
+resumes/
+*.pdf
+*.doc
+*.docx
 
 # Logs
 *.log
