@@ -5,64 +5,119 @@ from config import JOB_CATEGORIES, COUNTRIES
 from bson import ObjectId
 from utils.file_handler import get_resume_data, resume_exists
 
-# Clean, professional CSS
+# Enhanced professional CSS
 st.markdown("""
     <style>
         .dashboard-card {
             background: white;
             border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         }
         
         .metric-card {
             background: white;
-            border: 1px solid #e2e8f0;
+            border: 2px solid #e2e8f0;
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 1.75rem;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
         }
         
         .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 2.5rem;
+            font-weight: 800;
             color: #0f172a;
             margin: 0.5rem 0;
         }
         
         .metric-label {
-            font-size: 0.875rem;
+            font-size: 0.95rem;
             color: #64748b;
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .job-item {
             background: #f8fafc;
-            border-radius: 8px;
-            padding: 1rem;
-            margin: 0.75rem 0;
-            border-left: 3px solid #3b82f6;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin: 1rem 0;
+            border-left: 4px solid #3b82f6;
+            transition: all 0.2s ease;
         }
         
         .job-item:hover {
             background: #f1f5f9;
+            border-left-color: #2563eb;
+            transform: translateX(3px);
+        }
+        
+        .job-item-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+        
+        .job-item-meta {
+            color: #64748b;
+            font-size: 0.9rem;
         }
         
         .applicant-item {
             background: white;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 1rem;
-            margin: 0.5rem 0;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin: 0.75rem 0;
+            transition: all 0.2s ease;
+        }
+        
+        .applicant-item:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+        
+        .applicant-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.25rem;
+        }
+        
+        .applicant-email {
+            color: #3b82f6;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .applicant-date {
+            color: #64748b;
+            font-size: 0.85rem;
         }
         
         .status-badge {
             display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .status-active {
@@ -89,6 +144,45 @@ st.markdown("""
             background: #fee2e2;
             color: #991b1b;
         }
+        
+        .section-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 2rem 0 1rem 0;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .info-box {
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin: 1rem 0;
+        }
+        
+        .job-stats {
+            display: flex;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -110,7 +204,7 @@ def show_recruiter_dashboard(user):
         show_manage_jobs(user)
 
 def show_overview(user):
-    st.markdown("## Overview")
+    st.markdown('<div class="section-header">Dashboard Overview</div>', unsafe_allow_html=True)
     
     try:
         jobs_collection = get_collection("jobs")
@@ -156,9 +250,8 @@ def show_overview(user):
             """, unsafe_allow_html=True)
         
         if my_jobs:
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown('<div class="section-header">Recent Job Postings</div>', unsafe_allow_html=True)
             st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
-            st.markdown("### Recent Job Postings")
             
             for job in my_jobs[:5]:
                 st.markdown('<div class="job-item">', unsafe_allow_html=True)
@@ -166,28 +259,41 @@ def show_overview(user):
                 col1, col2, col3 = st.columns([3, 1, 1])
                 
                 with col1:
-                    st.markdown(f"**{job['title']}** - {job['company']}")
-                    st.caption(f"{job['location']} • {job['category']} - {job['subcategory']}")
+                    st.markdown(f'<div class="job-item-title">{job["title"]}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="job-item-meta">{job["company"]} • {job["location"]} • {job["category"]} - {job["subcategory"]}</div>', unsafe_allow_html=True)
                 
                 with col2:
-                    st.markdown(f"<div style='text-align: center;'><strong>{job.get('views', 0)}</strong><br><small>Views</small></div>", unsafe_allow_html=True)
+                    st.markdown(f"""
+                        <div style='text-align: center;'>
+                            <div class='stat-value'>{job.get('views', 0)}</div>
+                            <div class='stat-label'>Views</div>
+                        </div>
+                    """, unsafe_allow_html=True)
                 
                 with col3:
-                    st.markdown(f"<div style='text-align: center;'><strong>{job.get('applications_count', 0)}</strong><br><small>Applications</small></div>", unsafe_allow_html=True)
+                    st.markdown(f"""
+                        <div style='text-align: center;'>
+                            <div class='stat-value'>{job.get('applications_count', 0)}</div>
+                            <div class='stat-label'>Applications</div>
+                        </div>
+                    """, unsafe_allow_html=True)
                 
                 st.markdown('</div>', unsafe_allow_html=True)
             
             st.markdown('</div>', unsafe_allow_html=True)
         else:
+            st.markdown('<div class="info-box">', unsafe_allow_html=True)
             st.info("No jobs posted yet. Click 'Post New Job' to get started!")
+            st.markdown('</div>', unsafe_allow_html=True)
             
     except Exception as e:
         st.error(f"Error loading overview: {str(e)}")
 
 def show_post_job(user):
+    st.markdown('<div class="section-header">Post a New Job</div>', unsafe_allow_html=True)
     st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
-    st.markdown("## Post a New Job")
     st.caption("Fill in the details to create a job listing")
+    st.markdown("<br>", unsafe_allow_html=True)
     
     with st.form("post_job_form"):
         col1, col2 = st.columns(2)
@@ -272,17 +378,19 @@ def show_post_job(user):
     st.markdown('</div>', unsafe_allow_html=True)
 
 def show_manage_jobs(user):
-    st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
-    st.markdown("## Manage Jobs & Applications")
+    st.markdown('<div class="section-header">Manage Jobs & Applications</div>', unsafe_allow_html=True)
     
     try:
         jobs_collection = get_collection("jobs")
         my_jobs = Job.find_by_recruiter(jobs_collection, str(user['_id']))
         
         if not my_jobs:
+            st.markdown('<div class="info-box">', unsafe_allow_html=True)
             st.info("No jobs posted yet. Go to 'Post New Job' to create your first job posting!")
             st.markdown('</div>', unsafe_allow_html=True)
             return
+        
+        st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
         
         col1, col2 = st.columns([3, 1])
         with col1:
@@ -302,39 +410,65 @@ def show_manage_jobs(user):
         for job in filtered_jobs:
             st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
             
-            with st.expander(f"**{job['title']}** at {job['company']}", expanded=False):
-                col1, col2, col3 = st.columns([2, 2, 1])
-                
-                with col1:
-                    st.write(f"**Location:** {job['location']}")
-                    st.write(f"**Category:** {job['category']}")
-                    st.write(f"**Role:** {job['subcategory']}")
-                    st.write(f"**Salary:** ${job.get('salary_min', 0):,} - ${job.get('salary_max', 0):,}")
-                
-                with col2:
-                    st.write(f"**Employment:** {job.get('employment_type', 'N/A')}")
-                    st.write(f"**Experience:** {job.get('experience_level', 'N/A')}")
-                    st.write(f"**Skills:** {', '.join(job.get('skills_required', []))}")
-                    
-                    if job['status'] == 'active':
-                        st.markdown('<span class="status-badge status-active">Active</span>', unsafe_allow_html=True)
-                    else:
-                        st.markdown('<span class="status-badge status-closed">Closed</span>', unsafe_allow_html=True)
-                
-                with col3:
-                    st.metric("Views", job.get('views', 0))
-                    st.metric("Applications", job.get('applications_count', 0))
-                
+            # Job header
+            col_title, col_status = st.columns([4, 1])
+            
+            with col_title:
+                st.markdown(f'<div class="job-item-title">{job["title"]} at {job["company"]}</div>', unsafe_allow_html=True)
+            
+            with col_status:
+                if job['status'] == 'active':
+                    st.markdown('<span class="status-badge status-active">Active</span>', unsafe_allow_html=True)
+                else:
+                    st.markdown('<span class="status-badge status-closed">Closed</span>', unsafe_allow_html=True)
+            
+            st.markdown("<hr style='margin: 1rem 0; border: 0; border-top: 1px solid #e2e8f0;'>", unsafe_allow_html=True)
+            
+            # Job details
+            col1, col2, col3 = st.columns([2, 2, 1])
+            
+            with col1:
+                st.write(f"**Location:** {job['location']}")
+                st.write(f"**Category:** {job['category']}")
+                st.write(f"**Role:** {job['subcategory']}")
+                st.write(f"**Salary:** ${job.get('salary_min', 0):,} - ${job.get('salary_max', 0):,}")
+            
+            with col2:
+                st.write(f"**Employment:** {job.get('employment_type', 'N/A')}")
+                st.write(f"**Experience:** {job.get('experience_level', 'N/A')}")
+                st.write(f"**Skills:** {', '.join(job.get('skills_required', [])[:3])}...")
+            
+            with col3:
+                st.markdown(f"""
+                    <div style='text-align: center;'>
+                        <div class='stat-value'>{job.get('views', 0)}</div>
+                        <div class='stat-label'>Views</div>
+                    </div>
+                """, unsafe_allow_html=True)
                 st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style='text-align: center;'>
+                        <div class='stat-value'>{job.get('applications_count', 0)}</div>
+                        <div class='stat-label'>Applications</div>
+                    </div>
+                """, unsafe_allow_html=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            with st.expander("View Full Details"):
                 st.write("**Description:**")
-                st.write(job['description'][:300] + "..." if len(job['description']) > 300 else job['description'])
+                st.write(job['description'])
+                
+                if job.get('skills_required'):
+                    st.write("**Required Skills:**")
+                    st.write(", ".join(job['skills_required']))
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 4])
                 
                 with col_btn1:
                     if job['status'] == 'active':
-                        if st.button("Close Job", key=f"close_{job['_id']}"):
+                        if st.button("Close Job", key=f"close_{job['_id']}", use_container_width=True):
                             try:
                                 jobs_collection.update_one(
                                     {"_id": job['_id']},
@@ -346,69 +480,71 @@ def show_manage_jobs(user):
                                 st.error(f"Error closing job: {str(e)}")
                 
                 with col_btn2:
-                    if st.button("Delete", key=f"delete_{job['_id']}"):
+                    if st.button("Delete", key=f"delete_{job['_id']}", use_container_width=True):
                         try:
                             jobs_collection.delete_one({"_id": job['_id']})
                             st.success("Job deleted")
                             st.rerun()
                         except Exception as e:
                             st.error(f"Error deleting job: {str(e)}")
+            
+            # Display applications
+            apps_collection = get_collection("applications")
+            applications = Application.find_by_job(apps_collection, str(job['_id']))
+            
+            if applications:
+                st.markdown("<hr style='margin: 1.5rem 0; border: 0; border-top: 2px solid #e2e8f0;'>", unsafe_allow_html=True)
+                st.markdown(f'<div class="section-header" style="margin-top: 1rem;">Applications ({len(applications)})</div>', unsafe_allow_html=True)
                 
-                # Display applications
-                apps_collection = get_collection("applications")
-                applications = Application.find_by_job(apps_collection, str(job['_id']))
-                
-                if applications:
-                    st.markdown("<hr>", unsafe_allow_html=True)
-                    st.markdown(f"### Applications ({len(applications)})")
+                for app in applications:
+                    st.markdown('<div class="applicant-item">', unsafe_allow_html=True)
                     
-                    for app in applications:
-                        st.markdown('<div class="applicant-item">', unsafe_allow_html=True)
-                        
-                        col_app1, col_app2, col_app3, col_app4 = st.columns([2, 1, 1, 1])
-                        
-                        with col_app1:
-                            st.write(f"**{app['user_name']}**")
-                            st.caption(app['user_email'])
-                            st.caption(f"Applied: {app['applied_at'].strftime('%Y-%m-%d %H:%M')}")
-                        
-                        with col_app2:
-                            status = app['status']
-                            if status == 'pending':
-                                st.markdown('<span class="status-badge status-pending">Pending</span>', unsafe_allow_html=True)
-                            elif status == 'accepted':
-                                st.markdown('<span class="status-badge status-accepted">Accepted</span>', unsafe_allow_html=True)
-                            else:
-                                st.markdown('<span class="status-badge status-rejected">Rejected</span>', unsafe_allow_html=True)
-                        
-                        with col_app3:
-                            if app.get('resume_filename'):
-                                try:
-                                    if resume_exists(app['resume_filename']):
-                                        # Get resume data from GridFS
-                                        resume_data = get_resume_data(app['resume_filename'])
-                                        
-                                        if resume_data:
-                                            file_extension = app['resume_filename'].split('.')[-1]
-                                            st.download_button(
-                                                label="Download Resume",
-                                                data=resume_data,
-                                                file_name=f"{app['user_name']}_resume.{file_extension}",
-                                                mime="application/octet-stream",
-                                                key=f"download_{app['_id']}"
-                                            )
-                                        else:
-                                            st.caption("Resume not found")
+                    col_app1, col_app2, col_app3, col_app4 = st.columns([2, 1, 1, 1])
+                    
+                    with col_app1:
+                        st.markdown(f'<div class="applicant-name">{app["user_name"]}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="applicant-email">{app["user_email"]}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="applicant-date">Applied: {app["applied_at"].strftime("%Y-%m-%d %H:%M")}</div>', unsafe_allow_html=True)
+                    
+                    with col_app2:
+                        status = app['status']
+                        if status == 'pending':
+                            st.markdown('<span class="status-badge status-pending">Pending</span>', unsafe_allow_html=True)
+                        elif status == 'accepted':
+                            st.markdown('<span class="status-badge status-accepted">Accepted</span>', unsafe_allow_html=True)
+                        else:
+                            st.markdown('<span class="status-badge status-rejected">Rejected</span>', unsafe_allow_html=True)
+                    
+                    with col_app3:
+                        if app.get('resume_filename'):
+                            try:
+                                if resume_exists(app['resume_filename']):
+                                    resume_data = get_resume_data(app['resume_filename'])
+                                    
+                                    if resume_data:
+                                        file_extension = app['resume_filename'].split('.')[-1]
+                                        st.download_button(
+                                            label="Download Resume",
+                                            data=resume_data,
+                                            file_name=f"{app['user_name']}_resume.{file_extension}",
+                                            mime="application/octet-stream",
+                                            key=f"download_{app['_id']}",
+                                            use_container_width=True
+                                        )
                                     else:
                                         st.caption("Resume not found")
-                                except Exception as e:
-                                    st.caption(f"Error: {str(e)}")
-                            else:
-                                st.caption("No resume")
-                        
-                        with col_app4:
-                            if app['status'] == 'pending':
-                                if st.button("Accept", key=f"accept_{app['_id']}"):
+                                else:
+                                    st.caption("Resume not found")
+                            except Exception as e:
+                                st.caption(f"Error: {str(e)}")
+                        else:
+                            st.caption("No resume")
+                    
+                    with col_app4:
+                        if app['status'] == 'pending':
+                            col_a, col_b = st.columns(2)
+                            with col_a:
+                                if st.button("✓", key=f"accept_{app['_id']}", help="Accept", use_container_width=True):
                                     try:
                                         apps_collection.update_one(
                                             {"_id": app['_id']},
@@ -417,8 +553,9 @@ def show_manage_jobs(user):
                                         st.rerun()
                                     except Exception as e:
                                         st.error(f"Error: {str(e)}")
-                                
-                                if st.button("Reject", key=f"reject_{app['_id']}"):
+                            
+                            with col_b:
+                                if st.button("✗", key=f"reject_{app['_id']}", help="Reject", use_container_width=True):
                                     try:
                                         apps_collection.update_one(
                                             {"_id": app['_id']},
@@ -427,8 +564,8 @@ def show_manage_jobs(user):
                                         st.rerun()
                                     except Exception as e:
                                         st.error(f"Error: {str(e)}")
-                        
-                        st.markdown('</div>', unsafe_allow_html=True)
+                    
+                    st.markdown('</div>', unsafe_allow_html=True)
             
             st.markdown('</div>', unsafe_allow_html=True)
     

@@ -28,65 +28,93 @@ st.markdown("""
         .job-card {
             background: white;
             border-radius: 12px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            border-left: 3px solid #3b82f6;
-            transition: all 0.2s;
+            padding: 1.75rem;
+            margin: 1.25rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid #3b82f6;
+            transition: all 0.3s ease;
         }
         
         .job-card:hover {
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            transform: translateY(-3px);
+            border-left-color: #2563eb;
+        }
+        
+        .job-header {
+            margin-bottom: 1rem;
         }
         
         .job-title {
             color: #0f172a;
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.35rem;
+            font-weight: 700;
             margin-bottom: 0.5rem;
+            line-height: 1.4;
         }
         
         .company-name {
             color: #3b82f6;
-            font-weight: 500;
-            font-size: 1rem;
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .job-location {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
         }
         
         .job-meta {
             color: #64748b;
-            font-size: 0.875rem;
-            margin: 0.5rem 0;
+            font-size: 0.9rem;
+            margin: 0.75rem 0;
+            line-height: 1.6;
+        }
+        
+        .job-description {
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin: 1rem 0;
         }
         
         .skill-badge {
             background: #f1f5f9;
             color: #334155;
-            padding: 0.25rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
+            padding: 0.375rem 0.875rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
             font-weight: 500;
             display: inline-block;
-            margin: 0.25rem 0.25rem 0.25rem 0;
+            margin: 0.25rem 0.35rem 0.25rem 0;
         }
         
         .match-badge {
             background: #d1fae5;
             color: #065f46;
-            padding: 0.375rem 0.875rem;
-            border-radius: 6px;
-            font-weight: 600;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
             display: inline-block;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
         }
         
         .external-badge {
-            background: #fed7aa;
-            color: #9a3412;
-            padding: 0.25rem 0.625rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 500;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .badge-container {
+            margin: 0.75rem 0;
         }
         
         .metric-card {
@@ -140,6 +168,12 @@ st.markdown("""
             text-align: center;
             margin-top: 1.5rem;
         }
+        
+        .divider {
+            border: 0;
+            border-top: 1px solid #e2e8f0;
+            margin: 1rem 0;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -157,7 +191,6 @@ def show_user_dashboard(user):
         show_my_applications(user)
 
 def show_job_search(user):
-    #st.markdown('<div class="search-card">', unsafe_allow_html=True)
     st.markdown("### Find Your Dream Job")
     st.caption("Search thousands of opportunities")
     
@@ -182,7 +215,7 @@ def show_job_search(user):
         st.markdown("<br>", unsafe_allow_html=True)
         search_button = st.form_submit_button("Search Jobs", type="primary", use_container_width=True)
     
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
     
     if search_button:
         st.session_state['current_page_jobs'] = 1
@@ -398,41 +431,63 @@ def display_job_card(job, idx, user, jobs_collection, apps_collection):
     col1, col2 = st.columns([3, 1])
     
     with col1:
-        # Title with match score
-        title_html = f'<div class="job-title">{idx}. {job.get("title", "Untitled Position")}'
-        if job.get('skill_match_score', 0) > 0:
-            title_html += f' <span class="match-badge">{int(job["skill_match_score"])}% Match</span>'
-        title_html += '</div>'
-        st.markdown(title_html, unsafe_allow_html=True)
+        st.markdown('<div class="job-header">', unsafe_allow_html=True)
         
-        # Company and location
-        st.markdown(f'<div class="company-name">{job.get("company", "Unknown Company")} • {job.get("location", "Location not specified")}</div>', unsafe_allow_html=True)
+        # Job number and title
+        title_text = f"{idx}. {job.get('title', 'Untitled Position')}"
+        st.markdown(f'<div class="job-title">{title_text}</div>', unsafe_allow_html=True)
+        
+        # Company name
+        st.markdown(f'<div class="company-name">{job.get("company", "Unknown Company")}</div>', unsafe_allow_html=True)
+        
+        # Location
+        st.markdown(f'<div class="job-location">📍 {job.get("location", "Location not specified")}</div>', unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Badges container
+        st.markdown('<div class="badge-container">', unsafe_allow_html=True)
+        
+        # Match score badge
+        if job.get('skill_match_score', 0) > 0:
+            st.markdown(f'<span class="match-badge">✓ {int(job["skill_match_score"])}% Match</span>', unsafe_allow_html=True)
         
         # External badge
         if job.get('source') == 'external':
-            st.markdown(f'<span class="external-badge">External: {job.get("job_source", "Web")}</span>', unsafe_allow_html=True)
+            st.markdown(f' <span class="external-badge">🌐 {job.get("job_source", "External")}</span>', unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
         
         # Meta information
-        meta_info = []
+        meta_parts = []
         if job.get('category'):
-            meta_info.append(job['category'])
+            meta_parts.append(f"📂 {job['category']}")
         if job.get('salary_min') and job.get('salary_max'):
-            meta_info.append(f"${job['salary_min']:,} - ${job['salary_max']:,}/year")
+            meta_parts.append(f"💰 ${job['salary_min']:,} - ${job['salary_max']:,}/year")
+        if job.get('employment_type'):
+            meta_parts.append(f"⏰ {job['employment_type']}")
         if job.get('experience_level'):
-            meta_info.append(job['experience_level'])
+            meta_parts.append(f"📊 {job['experience_level']}")
         
-        if meta_info:
-            st.markdown(f'<div class="job-meta">{" • ".join(meta_info)}</div>', unsafe_allow_html=True)
+        if meta_parts:
+            st.markdown(f'<div class="job-meta">{" • ".join(meta_parts)}</div>', unsafe_allow_html=True)
         
         # Description
         description = job.get('description', 'No description available')
-        st.write(description[:200] + "..." if len(description) > 200 else description)
+        truncated_desc = description[:250] + "..." if len(description) > 250 else description
+        st.markdown(f'<div class="job-description">{truncated_desc}</div>', unsafe_allow_html=True)
         
         # Skills
         if job.get('skills_required'):
+            st.markdown('<div style="margin-top: 1rem;">', unsafe_allow_html=True)
             skills_html = "".join([f'<span class="skill-badge">{skill}</span>' 
-                                  for skill in job['skills_required'][:5]])
-            st.markdown(f'<div>{skills_html}</div>', unsafe_allow_html=True)
+                                  for skill in job['skills_required'][:6]])
+            st.markdown(skills_html, unsafe_allow_html=True)
+            
+            if len(job['skills_required']) > 6:
+                st.markdown(f'<span style="color: #64748b; font-size: 0.85rem; margin-left: 0.5rem;">+{len(job["skills_required"]) - 6} more</span>', unsafe_allow_html=True)
+            
+            st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
         if job.get('source') == 'external':
