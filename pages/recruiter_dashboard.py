@@ -4,6 +4,7 @@ from database.models import Job, Application
 from config import JOB_CATEGORIES, COUNTRIES
 from bson import ObjectId
 from utils.file_handler import get_resume_data, resume_exists
+import time
 
 # Modern, enhanced CSS matching user dashboard style
 st.markdown("""
@@ -205,8 +206,8 @@ st.markdown("""
         }
         
         .section-header {
-            font-size: 32px;
-            font-weight: 800;
+            font-size: 28px;
+            font-weight: 700;
             color: #1a1a1a;
             margin: 24px 0 20px 0;
             padding-bottom: 12px;
@@ -214,7 +215,7 @@ st.markdown("""
         }
         
         .section-subheader {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             color: #333;
             margin: 16px 0 12px 0;
@@ -308,8 +309,12 @@ def show_recruiter_dashboard(user):
     st.caption("Manage your job postings and applications")
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Tab-based navigation like user dashboard
-    tab1, tab2, tab3 = st.tabs(["📊 Overview", "✏️ Post New Job", "📁 Manage Jobs"])
+    # Initialize active_tab in session state if not exists
+    if 'active_recruiter_tab' not in st.session_state:
+        st.session_state.active_recruiter_tab = 0
+    
+    # Tab-based navigation
+    tab1, tab2, tab3 = st.tabs(["📊 Overview", "✏️ Post New Job", "📋 Manage Jobs"])
     
     with tab1:
         show_overview(user)
@@ -321,7 +326,8 @@ def show_recruiter_dashboard(user):
         show_manage_jobs(user)
 
 def show_overview(user):
-    st.markdown('<div class="section-header">Dashboard Overview</div>', unsafe_allow_html=True)
+    st.markdown("## Dashboard Overview")
+    st.markdown("<br>", unsafe_allow_html=True)
     
     try:
         jobs_collection = get_collection("jobs")
@@ -367,7 +373,8 @@ def show_overview(user):
             """, unsafe_allow_html=True)
         
         if my_jobs:
-            st.markdown('<div class="section-header">Recent Job Postings</div>', unsafe_allow_html=True)
+            st.markdown("### Recent Job Postings")
+            st.markdown("<br>", unsafe_allow_html=True)
             
             for job in my_jobs[:5]:
                 st.markdown('<div class="job-item">', unsafe_allow_html=True)
@@ -377,7 +384,7 @@ def show_overview(user):
                 status_text = "Active" if job['status'] == 'active' else "Closed"
                 st.markdown(f'<div style="position: absolute; top: 12px; right: 12px;"><span class="status-badge {status_class}">{status_text}</span></div>', unsafe_allow_html=True)
                 
-                # Title (same style as user dashboard)
+                # Title
                 st.markdown(f'<div class="job-item-title">{job["title"]}</div>', unsafe_allow_html=True)
                 
                 # Company and location
@@ -423,10 +430,11 @@ def show_overview(user):
         st.error(f"❌ Error loading overview: {str(e)}")
 
 def show_post_job(user):
-    st.markdown('<div class="section-header">Post a New Job</div>', unsafe_allow_html=True)
-    st.markdown('<div class="form-section">', unsafe_allow_html=True)
+    st.markdown("## Post a New Job")
     st.caption("Fill in the details to create a job listing")
     st.markdown("<br>", unsafe_allow_html=True)
+    
+    st.markdown('<div class="form-section">', unsafe_allow_html=True)
     
     with st.form("post_job_form"):
         col1, col2 = st.columns(2)
@@ -499,7 +507,9 @@ def show_post_job(user):
                         
                         if result.inserted_id:
                             st.success("✅ Job posted successfully!")
-                            st.balloons()
+                            # Clear form and switch to Manage Jobs tab
+                            time.sleep(0.5)
+                            st.rerun()
                         else:
                             st.error("❌ Failed to post job")
                             
@@ -509,7 +519,8 @@ def show_post_job(user):
     st.markdown('</div>', unsafe_allow_html=True)
 
 def show_manage_jobs(user):
-    st.markdown('<div class="section-header">Manage Jobs & Applications</div>', unsafe_allow_html=True)
+    st.markdown("## Manage Jobs & Applications")
+    st.markdown("<br>", unsafe_allow_html=True)
     
     try:
         jobs_collection = get_collection("jobs")
@@ -639,7 +650,8 @@ def show_manage_jobs(user):
             
             if applications:
                 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="section-subheader">📋 Applications ({len(applications)})</div>', unsafe_allow_html=True)
+                st.markdown(f"### Applications ({len(applications)})")
+                st.markdown("<br>", unsafe_allow_html=True)
                 
                 for app in applications:
                     st.markdown('<div class="applicant-item">', unsafe_allow_html=True)
