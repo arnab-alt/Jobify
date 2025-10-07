@@ -73,6 +73,16 @@ st.markdown("""
     font-weight: 500;
 }
 
+.external-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #e3f2fd;
+    color: #1565c0;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
 /* Match Score Badge */
 .match-badge {
     position: absolute;
@@ -241,6 +251,8 @@ st.markdown("""
     font-size: 14px;
     font-weight: 500;
     transition: all 0.2s ease;
+    display: inline-block;
+    text-align: center;
 }
 
 [data-testid="stLinkButton"] > a:hover {
@@ -601,7 +613,13 @@ def display_job_card_compact(job, idx, user):
     
     st.markdown(f'<h3 class="job-title">{title}</h3>', unsafe_allow_html=True)
     
-    badge_html = ' <span class="job-badge">Actively hiring</span>' if source == "external" else ''
+    # Show different badges based on source
+    if source == "external":
+        job_source = job.get("job_source", "External")
+        badge_html = f' <span class="external-badge">🌐 {job_source}</span>'
+    else:
+        badge_html = ' <span class="job-badge">Actively hiring</span>'
+    
     st.markdown(f'<div class="job-company">{company}{badge_html}</div>', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
@@ -682,14 +700,12 @@ def display_job_card_compact(job, idx, user):
     if is_applying:
         show_inline_application_form(job, user, job_id, idx)
     else:
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            if job.get("url"):
-                st.link_button("View Job", job["url"], use_container_width=True)
-        
-        with col2:
-            if source == "internal":
+        # Determine button layout based on job source
+        if source == "internal":
+            # Internal job: Show "Apply Now" button (and optionally a View Job link if URL exists)
+            col1, col2 = st.columns(2)
+            
+            with col1:
                 # Check if already applied
                 apps_collection = get_collection("applications")
                 user_id = user.get("user_id") or str(user.get("_id"))
@@ -701,6 +717,33 @@ def display_job_card_compact(job, idx, user):
                     if st.button("Apply Now", key=f"apply_{idx}", type="primary", use_container_width=True):
                         st.session_state["applying_to_job"] = job_id
                         st.rerun()
+            
+            with col2:
+                # If internal job has a URL, show it
+                if job.get("url"):
+                    st.link_button("View Job", job["url"], use_container_width=True)
+                else:
+                    st.empty()
+        
+        else:
+            # External job: Show "Apply on [Source]" button with the apply link
+            apply_link = job.get("apply_link") or job.get("url")
+            job_source = job.get("job_source", "Website")
+            
+            if apply_link and apply_link != "#":
+                st.link_button(
+                    f"🔗 Apply on {job_source}", 
+                    apply_link, 
+                    use_container_width=True
+                )
+            else:
+                # Fallback if no apply link is available
+                st.button(
+                    "❌ No Apply Link Available", 
+                    disabled=True, 
+                    use_container_width=True, 
+                    key=f"no_link_{idx}"
+                )
     
     st.markdown('</div>', unsafe_allow_html=True)
 
