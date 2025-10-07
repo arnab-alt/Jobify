@@ -5,27 +5,32 @@ from config import JOB_CATEGORIES, COUNTRIES
 from bson import ObjectId
 from utils.file_handler import get_resume_data, resume_exists
 
-# Modern, clean CSS with better visual hierarchy
+# Modern, enhanced CSS matching user dashboard style
 st.markdown("""
     <style>
+        /* Global Styles */
+        * {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
         .dashboard-card {
             background: white;
-            border-radius: 16px;
-            padding: 2.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            margin-bottom: 2rem;
-            border: 1px solid #f1f5f9;
-            transition: all 0.3s ease;
+            border: 1px solid #d6d6d6;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 16px;
+            transition: all 0.2s ease;
         }
         
         .dashboard-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+            border-color: #b0b0b0;
         }
         
         .metric-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 16px;
-            padding: 2rem;
+            border-radius: 12px;
+            padding: 24px;
             text-align: center;
             transition: all 0.3s ease;
             border: none;
@@ -37,90 +42,134 @@ st.markdown("""
         }
         
         .metric-value {
-            font-size: 2.75rem;
-            font-weight: 800;
+            font-size: 36px;
+            font-weight: 700;
             color: white;
-            margin: 0.5rem 0;
+            margin: 8px 0;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .metric-label {
-            font-size: 0.9rem;
+            font-size: 12px;
             color: rgba(255,255,255,0.95);
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         
+        /* Job Item Card - Enhanced */
         .job-item {
-            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 1rem 0;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
             border-left: 4px solid #667eea;
-            transition: all 0.3s ease;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            transition: all 0.2s ease;
+            position: relative;
         }
         
         .job-item:hover {
-            transform: translateX(4px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
             border-left-color: #764ba2;
+            transform: translateX(4px);
         }
         
         .job-item-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.5rem;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        
+        .job-item-company {
+            font-size: 14px;
+            font-weight: 400;
+            color: #666;
+            margin-bottom: 4px;
         }
         
         .job-item-meta {
-            color: #64748b;
-            font-size: 0.9rem;
-            font-weight: 500;
+            color: #666;
+            font-size: 14px;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
         }
         
+        .meta-separator {
+            color: #ccc;
+        }
+        
+        /* Job Details Section */
+        .job-details-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 8px 0;
+            padding: 8px 0;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .job-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .detail-icon {
+            font-size: 13px;
+            color: #888;
+        }
+        
+        /* Applicant Item Card */
         .applicant-item {
             background: white;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin: 10px 0;
+            transition: all 0.2s ease;
         }
         
         .applicant-item:hover {
             border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 2px 12px rgba(102, 126, 234, 0.1);
             transform: translateY(-2px);
         }
         
         .applicant-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.35rem;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
         }
         
         .applicant-email {
             color: #667eea;
-            font-size: 0.95rem;
-            margin-bottom: 0.35rem;
+            font-size: 14px;
+            margin-bottom: 4px;
             font-weight: 500;
         }
         
         .applicant-date {
-            color: #64748b;
-            font-size: 0.85rem;
+            color: #888;
+            font-size: 12px;
         }
         
         .status-badge {
             display: inline-block;
-            padding: 0.5rem 1.2rem;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -156,64 +205,119 @@ st.markdown("""
         }
         
         .section-header {
-            font-size: 1.75rem;
+            font-size: 32px;
             font-weight: 800;
-            color: #1e293b;
-            margin: 2.5rem 0 1.5rem 0;
-            padding-bottom: 1rem;
+            color: #1a1a1a;
+            margin: 24px 0 20px 0;
+            padding-bottom: 12px;
             border-bottom: 3px solid #667eea;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        }
+        
+        .section-subheader {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin: 16px 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
         }
         
         .info-box {
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
             border-left: 4px solid #3b82f6;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
         }
         
         .stat-value {
-            font-size: 2rem;
-            font-weight: 800;
+            font-size: 24px;
+            font-weight: 700;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
         .stat-label {
-            font-size: 0.85rem;
-            color: #64748b;
+            font-size: 11px;
+            color: #888;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+        
+        /* Filter Section */
+        .filter-section {
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 16px;
+        }
+        
+        /* Form Section */
+        .form-section {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 12px 0;
+        }
+        
+        /* Button enhancements */
+        .stButton > button {
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 8px 16px;
+            transition: all 0.2s ease;
+        }
+        
+        /* Custom badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e8f4fd;
+            color: #0066cc;
+            border: 1px solid #d0e7f9;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 2px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .job-details-row {
+                flex-direction: column;
+                gap: 8px;
+            }
         }
     </style>
 """, unsafe_allow_html=True)
 
 def show_recruiter_dashboard(user):
-    st.markdown("# Recruiter Dashboard")
+    st.title("💼 Recruiter Dashboard")
     st.caption("Manage your job postings and applications")
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Check if we need to switch view after posting
-    if 'recruiter_view' in st.session_state:
-        view = st.session_state['recruiter_view']
-        if view == 'manage':
-            del st.session_state['recruiter_view']
-    else:
-        view = st.radio("", ["Overview", "Post New Job", "Manage Jobs"], 
-                        horizontal=True, label_visibility="collapsed")
+    # Tab-based navigation like user dashboard
+    tab1, tab2, tab3 = st.tabs(["📊 Overview", "✏️ Post New Job", "📁 Manage Jobs"])
     
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    if view == "Overview":
+    with tab1:
         show_overview(user)
-    elif view == "Post New Job":
+    
+    with tab2:
         show_post_job(user)
-    else:
+    
+    with tab3:
         show_manage_jobs(user)
 
 def show_overview(user):
@@ -264,47 +368,63 @@ def show_overview(user):
         
         if my_jobs:
             st.markdown('<div class="section-header">Recent Job Postings</div>', unsafe_allow_html=True)
-            st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
             
             for job in my_jobs[:5]:
                 st.markdown('<div class="job-item">', unsafe_allow_html=True)
                 
-                col1, col2, col3 = st.columns([3, 1, 1])
+                # Status badge in top right
+                status_class = "status-active" if job['status'] == 'active' else "status-closed"
+                status_text = "Active" if job['status'] == 'active' else "Closed"
+                st.markdown(f'<div style="position: absolute; top: 12px; right: 12px;"><span class="status-badge {status_class}">{status_text}</span></div>', unsafe_allow_html=True)
                 
-                with col1:
-                    st.markdown(f'<div class="job-item-title">{job["title"]}</div>', unsafe_allow_html=True)
-                    st.markdown(f'<div class="job-item-meta">{job["company"]} • {job["location"]} • {job["category"]} - {job["subcategory"]}</div>', unsafe_allow_html=True)
+                # Title (same style as user dashboard)
+                st.markdown(f'<div class="job-item-title">{job["title"]}</div>', unsafe_allow_html=True)
                 
-                with col2:
-                    st.markdown(f"""
-                        <div style='text-align: center;'>
-                            <div class='stat-value'>{job.get('views', 0)}</div>
-                            <div class='stat-label'>Views</div>
-                        </div>
-                    """, unsafe_allow_html=True)
+                # Company and location
+                st.markdown(f'''
+                    <div class="job-item-meta">
+                        <span>🏢 {job["company"]}</span>
+                        <span class="meta-separator">•</span>
+                        <span>📍 {job["location"]}</span>
+                        <span class="meta-separator">•</span>
+                        <span>{job["category"]}</span>
+                    </div>
+                ''', unsafe_allow_html=True)
                 
-                with col3:
-                    st.markdown(f"""
-                        <div style='text-align: center;'>
-                            <div class='stat-value'>{job.get('applications_count', 0)}</div>
-                            <div class='stat-label'>Applications</div>
-                        </div>
-                    """, unsafe_allow_html=True)
+                # Stats row
+                st.markdown('<div class="job-details-row">', unsafe_allow_html=True)
+                st.markdown(f'''
+                    <div class="job-detail-item">
+                        <span class="detail-icon">👁️</span>
+                        <span><strong>{job.get('views', 0)}</strong> views</span>
+                    </div>
+                    <div class="job-detail-item">
+                        <span class="detail-icon">📋</span>
+                        <span><strong>{job.get('applications_count', 0)}</strong> applications</span>
+                    </div>
+                    <div class="job-detail-item">
+                        <span class="detail-icon">⏰</span>
+                        <span>{job.get('employment_type', 'N/A')}</span>
+                    </div>
+                    <div class="job-detail-item">
+                        <span class="detail-icon">💰</span>
+                        <span>${job.get('salary_min', 0)//1000}K - ${job.get('salary_max', 0)//1000}K</span>
+                    </div>
+                ''', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
                 
                 st.markdown('</div>', unsafe_allow_html=True)
-            
-            st.markdown('</div>', unsafe_allow_html=True)
         else:
             st.markdown('<div class="info-box">', unsafe_allow_html=True)
-            st.info("No jobs posted yet. Click 'Post New Job' to get started!")
+            st.info("📝 No jobs posted yet. Click 'Post New Job' to get started!")
             st.markdown('</div>', unsafe_allow_html=True)
             
     except Exception as e:
-        st.error(f"Error loading overview: {str(e)}")
+        st.error(f"❌ Error loading overview: {str(e)}")
 
 def show_post_job(user):
     st.markdown('<div class="section-header">Post a New Job</div>', unsafe_allow_html=True)
-    st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
+    st.markdown('<div class="form-section">', unsafe_allow_html=True)
     st.caption("Fill in the details to create a job listing")
     st.markdown("<br>", unsafe_allow_html=True)
     
@@ -341,23 +461,23 @@ def show_post_job(user):
         st.caption("* Required fields")
         st.markdown("<br>", unsafe_allow_html=True)
         
-        submitted = st.form_submit_button("Post Job", type="primary", use_container_width=True)
+        submitted = st.form_submit_button("📤 Post Job", type="primary", use_container_width=True)
         
         if submitted:
             if not all([title, company, location, category, subcategory, description, skills_input]):
-                st.error("Please fill all required fields")
+                st.error("❌ Please fill all required fields")
             elif not title.strip() or not company.strip() or not description.strip():
-                st.error("Title, Company, and Description cannot be empty")
+                st.error("❌ Title, Company, and Description cannot be empty")
             elif salary_min >= salary_max:
-                st.error("Maximum salary must be greater than minimum salary")
+                st.error("❌ Maximum salary must be greater than minimum salary")
             elif salary_min < 0 or salary_max < 0:
-                st.error("Salaries cannot be negative")
+                st.error("❌ Salaries cannot be negative")
             else:
                 try:
                     skills_required = [s.strip() for s in skills_input.split(',') if s.strip()]
                     
                     if not skills_required:
-                        st.error("Please enter at least one skill")
+                        st.error("❌ Please enter at least one skill")
                     else:
                         jobs_collection = get_collection("jobs")
                         job_data = Job.create(
@@ -378,16 +498,13 @@ def show_post_job(user):
                         result = jobs_collection.insert_one(job_data)
                         
                         if result.inserted_id:
-                            st.success("Job posted successfully!")
+                            st.success("✅ Job posted successfully!")
                             st.balloons()
-                            # Set view to manage and rerun
-                            st.session_state['recruiter_view'] = 'Manage Jobs'
-                            st.rerun()
                         else:
-                            st.error("Failed to post job")
+                            st.error("❌ Failed to post job")
                             
                 except Exception as e:
-                    st.error(f"Error posting job: {str(e)}")
+                    st.error(f"❌ Error posting job: {str(e)}")
     
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -400,15 +517,17 @@ def show_manage_jobs(user):
         
         if not my_jobs:
             st.markdown('<div class="info-box">', unsafe_allow_html=True)
-            st.info("No jobs posted yet. Go to 'Post New Job' to create your first job posting!")
+            st.info("📝 No jobs posted yet. Go to 'Post New Job' to create your first job posting!")
             st.markdown('</div>', unsafe_allow_html=True)
             return
         
-        st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
+        st.markdown('<div class="filter-section">', unsafe_allow_html=True)
         
         col1, col2 = st.columns([3, 1])
         with col1:
-            filter_status = st.selectbox("Filter by Status", ["All", "Active", "Closed"])
+            filter_status = st.selectbox("🔍 Filter by Status", ["All", "Active", "Closed"])
+        
+        st.markdown('</div>', unsafe_allow_html=True)
         
         filtered_jobs = my_jobs
         if filter_status == "Active":
@@ -417,98 +536,110 @@ def show_manage_jobs(user):
             filtered_jobs = [j for j in my_jobs if j['status'] != 'active']
         
         st.write(f"**{len(filtered_jobs)} jobs found**")
-        st.markdown('</div>', unsafe_allow_html=True)
-        
         st.markdown("<br>", unsafe_allow_html=True)
         
         for job in filtered_jobs:
+            job_id = str(job['_id'])
+            
             st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
             
-            # Job header
+            # Job header with status badge
             col_title, col_status = st.columns([4, 1])
             
             with col_title:
-                st.markdown(f'<div class="job-item-title">{job["title"]} at {job["company"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="job-item-title">{job["title"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="job-item-meta">🏢 {job["company"]}</div>', unsafe_allow_html=True)
             
             with col_status:
                 if job['status'] == 'active':
-                    st.markdown('<span class="status-badge status-active">Active</span>', unsafe_allow_html=True)
+                    st.markdown('<span class="status-badge status-active">✓ Active</span>', unsafe_allow_html=True)
                 else:
-                    st.markdown('<span class="status-badge status-closed">Closed</span>', unsafe_allow_html=True)
+                    st.markdown('<span class="status-badge status-closed">✕ Closed</span>', unsafe_allow_html=True)
             
-            st.markdown("<hr style='margin: 1rem 0; border: 0; border-top: 1px solid #e2e8f0;'>", unsafe_allow_html=True)
+            st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
             
-            # Job details
-            col1, col2, col3 = st.columns([2, 2, 1])
+            # Job details in compact row format
+            st.markdown('<div class="job-details-row">', unsafe_allow_html=True)
+            st.markdown(f'''
+                <div class="job-detail-item">
+                    <span class="detail-icon">📍</span>
+                    <span>{job['location']}</span>
+                </div>
+                <div class="job-detail-item">
+                    <span class="detail-icon">📂</span>
+                    <span>{job['category']} - {job['subcategory']}</span>
+                </div>
+                <div class="job-detail-item">
+                    <span class="detail-icon">⏰</span>
+                    <span>{job.get('employment_type', 'N/A')}</span>
+                </div>
+                <div class="job-detail-item">
+                    <span class="detail-icon">📅</span>
+                    <span>{job.get('experience_level', 'N/A')}</span>
+                </div>
+                <div class="job-detail-item">
+                    <span class="detail-icon">💰</span>
+                    <span>${job.get('salary_min', 0):,} - ${job.get('salary_max', 0):,}</span>
+                </div>
+                <div class="job-detail-item">
+                    <span class="detail-icon">👁️</span>
+                    <span><strong>{job.get('views', 0)}</strong> views</span>
+                </div>
+                <div class="job-detail-item">
+                    <span class="detail-icon">📋</span>
+                    <span><strong>{job.get('applications_count', 0)}</strong> applications</span>
+                </div>
+            ''', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
             
-            with col1:
-                st.write(f"**Location:** {job['location']}")
-                st.write(f"**Category:** {job['category']}")
-                st.write(f"**Role:** {job['subcategory']}")
-                st.write(f"**Salary:** ${job.get('salary_min', 0):,} - ${job.get('salary_max', 0):,}")
-            
-            with col2:
-                st.write(f"**Employment:** {job.get('employment_type', 'N/A')}")
-                st.write(f"**Experience:** {job.get('experience_level', 'N/A')}")
-                st.write(f"**Skills:** {', '.join(job.get('skills_required', [])[:3])}...")
-            
-            with col3:
-                st.markdown(f"""
-                    <div style='text-align: center;'>
-                        <div class='stat-value'>{job.get('views', 0)}</div>
-                        <div class='stat-label'>Views</div>
-                    </div>
-                """, unsafe_allow_html=True)
-                st.markdown("<br>", unsafe_allow_html=True)
-                st.markdown(f"""
-                    <div style='text-align: center;'>
-                        <div class='stat-value'>{job.get('applications_count', 0)}</div>
-                        <div class='stat-label'>Applications</div>
-                    </div>
-                """, unsafe_allow_html=True)
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            with st.expander("View Full Details"):
-                st.write("**Description:**")
+            with st.expander("👁️ View Full Details & Manage", expanded=False):
+                st.markdown("**Description:**")
                 st.write(job['description'])
                 
                 if job.get('skills_required'):
-                    st.write("**Required Skills:**")
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.markdown("**All Required Skills:**")
                     st.write(", ".join(job['skills_required']))
                 
-                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+                
                 col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 4])
                 
                 with col_btn1:
                     if job['status'] == 'active':
-                        if st.button("Close Job", key=f"close_{job['_id']}", use_container_width=True):
+                        if st.button("🔒 Close Job", key=f"close_{job_id}", use_container_width=True):
                             try:
                                 jobs_collection.update_one(
                                     {"_id": job['_id']},
                                     {"$set": {"status": "closed"}}
                                 )
-                                st.success("Job closed")
+                                st.success("✅ Job closed")
                                 st.rerun()
                             except Exception as e:
-                                st.error(f"Error closing job: {str(e)}")
+                                st.error(f"❌ Error closing job: {str(e)}")
                 
                 with col_btn2:
-                    if st.button("Delete", key=f"delete_{job['_id']}", use_container_width=True):
+                    if st.button("🗑️ Delete", key=f"delete_{job_id}", use_container_width=True):
                         try:
+                            # Delete the job
                             jobs_collection.delete_one({"_id": job['_id']})
-                            st.success("Job deleted")
+                            
+                            # Also delete all applications for this job
+                            apps_collection = get_collection("applications")
+                            apps_collection.delete_many({"job_id": job_id})
+                            
+                            st.success("✅ Job deleted successfully")
                             st.rerun()
                         except Exception as e:
-                            st.error(f"Error deleting job: {str(e)}")
+                            st.error(f"❌ Error deleting job: {str(e)}")
             
             # Display applications
             apps_collection = get_collection("applications")
-            applications = Application.find_by_job(apps_collection, str(job['_id']))
+            applications = Application.find_by_job(apps_collection, job_id)
             
             if applications:
-                st.markdown("<hr style='margin: 1.5rem 0; border: 0; border-top: 2px solid #e2e8f0;'>", unsafe_allow_html=True)
-                st.markdown(f'<div class="section-header" style="margin-top: 1rem;">Applications ({len(applications)})</div>', unsafe_allow_html=True)
+                st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="section-subheader">📋 Applications ({len(applications)})</div>', unsafe_allow_html=True)
                 
                 for app in applications:
                     st.markdown('<div class="applicant-item">', unsafe_allow_html=True)
@@ -517,17 +648,17 @@ def show_manage_jobs(user):
                     
                     with col_app1:
                         st.markdown(f'<div class="applicant-name">{app["user_name"]}</div>', unsafe_allow_html=True)
-                        st.markdown(f'<div class="applicant-email">{app["user_email"]}</div>', unsafe_allow_html=True)
-                        st.markdown(f'<div class="applicant-date">Applied: {app["applied_at"].strftime("%Y-%m-%d %H:%M")}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="applicant-email">✉️ {app["user_email"]}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="applicant-date">📅 Applied: {app["applied_at"].strftime("%b %d, %Y at %I:%M %p")}</div>', unsafe_allow_html=True)
                     
                     with col_app2:
                         status = app['status']
                         if status == 'pending':
-                            st.markdown('<span class="status-badge status-pending">Pending</span>', unsafe_allow_html=True)
+                            st.markdown('<span class="status-badge status-pending">⏳ Pending</span>', unsafe_allow_html=True)
                         elif status == 'accepted':
-                            st.markdown('<span class="status-badge status-accepted">Accepted</span>', unsafe_allow_html=True)
+                            st.markdown('<span class="status-badge status-accepted">✓ Accepted</span>', unsafe_allow_html=True)
                         else:
-                            st.markdown('<span class="status-badge status-rejected">Rejected</span>', unsafe_allow_html=True)
+                            st.markdown('<span class="status-badge status-rejected">✕ Rejected</span>', unsafe_allow_html=True)
                     
                     with col_app3:
                         if app.get('resume_filename'):
@@ -538,7 +669,7 @@ def show_manage_jobs(user):
                                     if resume_data:
                                         file_extension = app['resume_filename'].split('.')[-1]
                                         st.download_button(
-                                            label="Download Resume",
+                                            label="📎 Resume",
                                             data=resume_data,
                                             file_name=f"{app['user_name']}_resume.{file_extension}",
                                             mime="application/octet-stream",
@@ -584,4 +715,4 @@ def show_manage_jobs(user):
             st.markdown('</div>', unsafe_allow_html=True)
     
     except Exception as e:
-        st.error(f"Error loading jobs: {str(e)}")
+        st.error(f"❌ Error loading jobs: {str(e)}")

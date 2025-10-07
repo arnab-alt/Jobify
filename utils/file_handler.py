@@ -32,6 +32,9 @@ def save_resume(uploaded_file, user_id):
         if not fs:
             return False, "Database connection error"
         
+        # Reset file pointer to beginning
+        uploaded_file.seek(0)
+        
         # Check if file is allowed
         if not allowed_file(uploaded_file.name):
             return False, f"File type not allowed. Allowed types: {', '.join(ALLOWED_RESUME_EXTENSIONS)}"
@@ -56,8 +59,11 @@ def save_resume(uploaded_file, user_id):
             filename=filename,
             user_id=user_id,
             upload_date=datetime.utcnow(),
-            content_type=uploaded_file.type
+            content_type=uploaded_file.type if hasattr(uploaded_file, 'type') else 'application/octet-stream'
         )
+        
+        # Reset file pointer again for potential re-use
+        uploaded_file.seek(0)
         
         return True, filename
     
@@ -116,3 +122,26 @@ def get_resume_path(filename):
     since we're using GridFS instead of file system
     """
     return None
+
+def list_user_resumes(user_id):
+    """List all resumes uploaded by a user"""
+    try:
+        fs = get_gridfs()
+        if not fs:
+            return []
+        
+        files = fs.find({"user_id": user_id}).sort("upload_date", -1)
+        resume_list = []
+        
+        for file in files:
+            resume_list.append({
+                "filename": file.filename,
+                "upload_date": file.upload_date,
+                "size": file.length,
+                "content_type": file.content_type
+            })
+        
+        return resume_list
+    except Exception as e:
+        print(f"Error listing resumes: {e}")
+        return []

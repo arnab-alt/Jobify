@@ -36,7 +36,7 @@ st.markdown("""
         
         .section-header {
             color: #2d3748;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: 700;
             margin: 2rem 0 1rem 0;
             padding-bottom: 0.5rem;
@@ -84,9 +84,10 @@ st.markdown("""
         .stTextInput > label,
         .stTextArea > label,
         .stSelectbox > label {
-            font-weight: 600;
+            font-weight: 700;
             color: #2d3748;
-            font-size: 0.95rem;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
         }
     </style>
 """, unsafe_allow_html=True)
